@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: external_source
+    meta:
+      external_location: 's3://dagshub/douglasaturnino/dbt-duckdb/consolidado/{name}.parquet'
+    tables:
+      - name: consolidado

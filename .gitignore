@@ -192,4 +192,10 @@ pyrightconfig.json
 .history
 .ionide
 
+# duckdb
+*.duckdb
+
+# data
+data/
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python

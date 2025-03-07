@@ -1,0 +1,6 @@
+site_name: Duckdb + Dbtcore
+nav:
+    - Setup: index.md
+    - Duckdb: duckdb.md
+    - DbtCore: dbtcore.md
+    - Dbt Docs: target/index.html

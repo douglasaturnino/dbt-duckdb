@@ -6,7 +6,7 @@ SET s3_region='us-west-1';
 SET s3_access_key_id='<s3_access_key_id>';
 SET s3_secret_access_key='<s3_secret_access_key>';
 -- Cria a tabela lendo dos arquivos parquet
-CREATE TABLE transactions AS SELECT * FROM read_parquet('s3://workshop03-salesrecord/vendas/*.parquet');
+CREATE TABLE transactions AS SELECT * FROM read_parquet('s3://dagshub/douglasaturnino/dbt-duckdb/vendas/*.parquet');
 FROM transactions;
 SHOW transactions;
 
@@ -44,7 +44,7 @@ COPY (SELECT product_name, ROUND(SUM(price), 2) as total_revenue
     GROUP BY product_name
     ORDER BY total_revenue DESC
     LIMIT 10)
-TO 's3://workshop03-salesrecord/vendas/kpi.csv' WITH (FORMAT CSV, HEADER);
+TO 's3://dagshub/douglasaturnino/dbt-duckdb/vendas/kpi.csv' WITH (FORMAT CSV, HEADER);
 
 
 -- Refazendo
@@ -53,9 +53,11 @@ TO 's3://workshop03-salesrecord/vendas/kpi.csv' WITH (FORMAT CSV, HEADER);
 INSTALL httpfs;
 LOAD httpfs;
 -- Minimum configuration for loading S3 dataset if the bucket is public
-SET s3_region='us-west-1';
+SET s3_region='us-east-1';
 SET s3_access_key_id='<s3_access_key_id>';
 SET s3_secret_access_key='<s3_secret_access_key>';
+SET s3_endpoint ='com/api/v1/repo-buckets/s3';
+
 
 
 CREATE TABLE transactions_consolidado (
@@ -71,11 +73,11 @@ CREATE TABLE transactions_consolidado (
 );
 
 -- Carrega dados do arquivo CSV para a tabela temporária, incluindo o nome do arquivo
-CREATE TABLE temp_table AS SELECT *, CURRENT_TIMESTAMP AS created_at FROM read_parquet('s3://workshop03-salesrecord/vendas/*.parquet', filename=true);
+CREATE TABLE temp_table AS SELECT *, CURRENT_TIMESTAMP AS created_at FROM read_parquet('../data/consolidado.parquet');
 
 -- Insere dados da tabela temporária para a tabela principal com nomes de colunas modificados
 INSERT INTO transactions_consolidado (transaction_id, time_of_transaction, ean, name_of_product, price, store, operator, source_path)
-SELECT transaction_id, transaction_time, ean, product_name, price, store, operator, filename FROM temp_table;
+SELECT transaction_id, time_of_transaction, ean, name_of_product, price, store, operator, filename FROM temp_table;
 
 -- Remove a tabela temporária
 DROP TABLE temp_table;
@@ -84,7 +86,7 @@ DROP TABLE temp_table;
 SELECT * FROM transactions_consolidado;
 
 -- Exportando uma tabela completa
-COPY transactions_consolidado TO 's3://workshop03-salesrecord/consolidado/consolidado.parquet';
+COPY transactions_consolidado TO 's3://dagshub/douglasaturnino/dbt-duckdb/consolidado/consolidado.parquet';
 
 
 -- Drop table

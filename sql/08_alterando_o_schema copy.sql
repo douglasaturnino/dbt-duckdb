@@ -29,7 +29,7 @@ DROP TABLE temp_table;
 SELECT * FROM transactions;
 
 -- Exportando uma tabela completa
-COPY transactions TO 's3://workshop03-salesrecord/vendas/consolidado.parquet';
+COPY transactions TO 's3://dagshub/douglasaturnino/dbt-duckdb/consolidado.parquet';
 
 
 -- Drop table
